@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia de los Videojuegos (1952 - 2026)</title>
+    
+    <!-- Cargando Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Cargando Google Fonts para el diseño 'Gamer' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Iconos de FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Configuración personalizada de Tailwind y CSS nativo -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'gamer': ['Orbitron', 'sans-serif'],
+                        'body': ['Rajdhani', 'sans-serif']
+                    },
+                    colors: {
+                        'neon-blue': '#00f3ff',
+                        'neon-pink': '#ff00ea',
+                        'dark-bg': '#0b0f19',
+                        'dark-panel': '#151b2b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #e2e8f0;
+            overflow: hidden; /* Evitamos scroll general, usaremos scroll interno */
+        }
+
+        /* Estilos personalizados para las barras de desplazamiento (Scrollbars) */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f3ff;
+            box-shadow: 0 0 10px #00f3ff;
+        }
+
+        /* Efectos de resplandor (Glow) */
+        .glow-text {
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.7);
+        }
+        .glow-border {
+            box-shadow: 0 0 15px rgba(255, 0, 234, 0.4);
+        }
+        .timeline-item.active {
+            background: linear-gradient(90deg, rgba(0,243,255,0.1) 0%, rgba(11,15,25,0) 100%);
+            border-left: 4px solid #00f3ff;
+            color: #00f3ff;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0,243,255,0.5);
+        }
+
+        /* Animación de fade in */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="font-body text-gray-200 h-screen flex flex-col">
+
+    <!-- Barra de Navegación (Top Bar) -->
+    <header class="bg-dark-panel border-b border-gray-800 h-16 flex items-center justify-between px-4 lg:px-8 z-10 shadow-lg relative">
+        <!-- Decoración neón en el borde inferior -->
+        <div class="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-neon-blue via-neon-pink to-neon-blue"></div>
+        
+        <!-- Logo / Título -->
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-gamepad text-neon-blue text-2xl animate-pulse"></i>
+            <h1 class="font-gamer font-bold text-xl md:text-2xl tracking-wider text-white hidden sm:block">
+                HISTORIA<span class="text-neon-pink">GAMER</span>
+            </h1>
+        </div>
+
+        <!-- Buscador de Años -->
+        <form id="search-form" class="flex items-center relative w-48 sm:w-64">
+            <input 
+                type="number" 
+                id="search-input" 
+                min="1952" 
+                max="2026" 
+                placeholder="Buscar año..." 
+                class="w-full bg-gray-900 border border-gray-700 text-white font-gamer px-4 py-2 rounded-full focus:outline-none focus:border-neon-blue focus:ring-1 focus:ring-neon-blue transition-all"
+                required
+            >
+            <button type="submit" class="absolute right-3 text-gray-400 hover:text-neon-blue transition-colors">
+                <i class="fa-solid fa-search"></i>
+            </button>
+        </form>
+    </header>
+
+    <!-- Contenedor Principal (Flexbox) -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Barra Lateral Izquierda (Timeline Vertical) -->
+        <aside class="w-24 md:w-48 lg:w-64 bg-dark-panel border-r border-gray-800 overflow-y-auto flex-shrink-0 flex flex-col">
+            <div class="p-4 border-b border-gray-800 sticky top-0 bg-dark-panel z-10 shadow-md">
+                <h2 class="font-gamer text-gray-400 text-xs md:text-sm uppercase tracking-widest text-center">Línea de Tiempo</h2>
+            </div>
+            <!-- Contenedor dinámico de los años -->
+            <ul id="timeline-container" class="flex flex-col py-2">
+                <!-- Los items se generarán con JS -->
+            </ul>
+        </aside>
+
+        <!-- Área de Contenido Principal -->
+        <main class="flex-1 bg-dark-bg overflow-y-auto relative p-4 md:p-8 lg:p-12" id="main-content">
+            <!-- El contenido dinámico se inyectará aquí -->
+            <div class="flex h-full items-center justify-center flex-col text-center opacity-50">
+                <i class="fa-solid fa-spinner fa-spin text-4xl text-neon-blue mb-4"></i>
+                <p class="font-gamer text-xl">Iniciando sistema...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Lógica de JavaScript -->
+    <script>
+        // Base de datos de historia de los videojuegos
+        const historyData = {
+            1952: {
+                title: "Los Inicios - El Primer Juego Digital",
+                desc: "A.S. Douglas crea OXO (una versión del tres en raya o tic-tac-toe) para la computadora EDSAC. Es considerado uno de los primeros juegos en utilizar una pantalla digital, marcando el nacimiento conceptual de los videojuegos interactivos.",
+                games: [
+                    {
+                        name: "OXO (Tic-Tac-Toe)",
+                        img: "https://placehold.co/400x300/1e293b/00f3ff?text=OXO+1952",
+                        desc: "Desarrollado como parte de una tesis sobre la interacción humano-computadora en la Universidad de Cambridge."
+                    }
+                ]
+            },
+            1958: {
+                title: "El Entretenimiento Interactivo",
+                desc: "El físico William Higinbotham crea 'Tennis for Two' para entretener a los visitantes del Laboratorio Nacional de Brookhaven. A diferencia de OXO, este juego calculaba trayectorias físicas reales y se mostraba en un osciloscopio.",
+                games: [
+                    {
+                        name: "Tennis for Two",
+                        img: "https://placehold.co/400x300/1e293b/00f3ff?text=Tennis+for+Two",
+                        desc: "Usaba una computadora analógica y un osciloscopio. Los jugadores usaban perillas para golpear una bola de luz."
+                    }
+                ]
+            },
+            1962: {
+                title: "Spacewar! - El primer juego de ordenador",
+                desc: "Estudiantes del MIT liderados por Steve Russell programan Spacewar! en una minicomputadora PDP-1. Fue el primer juego de ordenador que se distribuyó e instaló en múltiples computadoras.",
+                games: [
+                    {
+                        name: "Spacewar!",
+                        img: "https://placehold.co/400x300/1e293b/00f3ff?text=Spacewar!",
+                        desc: "Dos jugadores controlaban naves espaciales e intentaban destruirse mutuamente cerca de la gravedad de una estrella central."
+                    }
+                ]
+            },
+            1972: {
+                title: "Nace la Industria: Pong y Odyssey",
+                desc: "Un año revolucionario. Magnavox lanza la 'Odyssey', la primera consola de videojuegos doméstica. Poco después, Atari (fundada por Nolan Bushnell) lanza 'Pong' en máquinas recreativas (Arcade), convirtiéndose en un éxito mundial masivo.",
+                games: [
+                    {
+                        name: "Pong (Atari)",
+                        img: "https://placehold.co/400x300/1e293b/00f3ff?text=PONG",
+                        desc: "Un juego de tenis de mesa increíblemente simple pero adictivo que popularizó los videojuegos en lugares públicos."
+                    },
+                    {
+                        name: "Magnavox Odyssey",
+                        img: "https://placehold.co/400x300/1e293b/ff00ea?text=Odyssey+Console",
+                        desc: "La primera consola de casa, utilizaba láminas de plástico sobre la TV para añadir color y contexto visual."
+                    }
+                ]
+            },
+            1977: {
+                title: "La Era del Cartucho: Atari 2600",
+                desc: "Atari lanza el Video Computer System (VCS), más tarde conocido como Atari 2600. Popularizó el uso de cartuchos intercambiables, permitiendo a los usuarios comprar múltiples juegos para una sola consola.",
+                games: [
+                    {
+                        name: "Combat",
+                        img: "https://placehold.co/400x300/1e293b/00f3ff?text=Combat+(Atari)",
+                        desc: "Juego multijugador de tanques y aviones incluido con la consola Atari 2600 en su lanzamiento."
+                    }
+                ]
+            },
+            1980: {
+                title: "La Fiebre Amarilla",
+                desc: "Toru Iwatani de Namco lanza Pac-Man en Japón y poco después llega a Estados Unidos. Se convierte en un fenómeno cultural inmediato, atrayendo tanto a hombres como a mujeres y vendiendo toneladas de merchandising.",
+                games: [
+                    {
+                        name: "Pac-Man",
+                        img: "https://placehold.co/400x300/1e293b/fbbf24?text=Pac-Man",
+                        desc: "El personaje más reconocible de la historia inicial de los videojuegos. Un icono de la cultura pop."
+                    }
+                ]
+            },
+            1985: {
+                title: "La Salvación de la Industria: NES",
+                desc: "Tras la 'Crisis del Videojuego de 1983', Nintendo lanza su Famicom en occidente como la Nintendo Entertainment System (NES). Junto con Super Mario Bros, revitalizó la industria e impuso nuevos estándares de calidad y control.",
+                games: [
+                    {
+                        name: "Super Mario Bros.",
+                        img: "https://placehold.co/400x300/1e293b/ef4444?text=Super+Mario+Bros",
+                        desc: "Definió el género de plataformas de desplazamiento lateral y convirtió a Mario en la mascota de la industria."
+                    }
+                ]
+            },
+            1989: {
+                title: "Videojuegos en el Bolsillo",
+                desc: "Nintendo lanza la Game Boy, revolucionando el mercado de las consolas portátiles gracias a su gran autonomía, precio asequible y un juego perfecto en su catálogo: Tetris.",
+                games: [
+                    {
+                        name: "Tetris",
+                        img: "https://placehold.co/400x300/1e293b/a855f7?text=Tetris",
+                        desc: "Creado por el ruso Alekséi Pázhitnov, fue el rompecabezas perfecto para el lanzamiento mundial de Game Boy."
+                    }
+                ]
+            },
+            1993: {
+                title: "El Origen del FPS",
+                desc: "id Software lanza DOOM. Sus revolucionarios gráficos pseudo-3D, jugabilidad sangrienta y frenética, y la posibilidad de jugar en red (Deathmatch) establecieron los cimientos del género First-Person Shooter.",
+                games: [
+                    {
+                        name: "DOOM",
+                        img: "https://placehold.co/400x300/1e293b/dc2626?text=DOOM",
+                        desc: "Pionero de los gráficos inmersivos y el juego multijugador en computadoras PC."
+                    }
+                ]
+            },
+            1996: {
+                title: "La Revolución del 3D",
+                desc: "La transición al verdadero 3D se consolida. Nintendo 64 trae consigo a Super Mario 64, definiendo cómo deben controlarse las cámaras y el movimiento en entornos tridimensionales. Además, nace el 'Survival Horror'.",
+                games: [
+                    {
+                        name: "Super Mario 64",
+                        img: "https://placehold.co/400x300/1e293b/3b82f6?text=Super+Mario+64",
+                        desc: "El estándar de oro para los juegos de plataformas 3D, introduciendo la cámara libre y el control analógico."
+                    },
+                    {
+                        name: "Resident Evil",
+                        img: "https://placehold.co/400x300/1e293b/4ade80?text=Resident+Evil",
+                        desc: "Popularizó el género de terror de supervivencia (Survival Horror) en la primera PlayStation."
+                    }
+                ]
+            },
+            1998: {
+                title: "Un Año Legendario",
+                desc: "Considerado por muchos como el mejor año de la historia del gaming. Se lanzaron obras maestras que introdujeron narrativas cinematográficas y mecánicas nunca antes vistas, como The Legend of Zelda: Ocarina of Time, Half-Life, y Metal Gear Solid.",
+                games: [
+                    {
+                        name: "The Legend of Zelda: Ocarina of Time",
+                        img: "https://placehold.co/400x300/1e293b/eab308?text=Ocarina+of+Time",
+                        desc: "El juego con mejor calificación de la historia; introdujo el 'Z-targeting' y un diseño de mundo interconectado brillante."
+                    },
+                    {
+                        name: "Half-Life",
+                        img: "https://placehold.co/400x300/1e293b/f97316?text=Half-Life",
+                        desc: "Revolucionó la narrativa en los shooters, contando la historia en tiempo real sin cinemáticas invasivas."
+                    }
+                ]
+            },
+            2004: {
+                title: "Conquistando el Mundo Online",
+                desc: "Blizzard lanza World of Warcraft (WoW), un MMORPG masivo que no solo batió todos los récords de suscripciones, sino que se convirtió en un fenómeno de la cultura popular, uniendo a millones de jugadores globalmente.",
+                games: [
+                    {
+                        name: "World of Warcraft",
+                        img: "https://placehold.co/400x300/1e293b/14b8a6?text=World+of+Warcraft",
+                        desc: "Forjó amistades y rivalidades en el continente virtual de Azeroth."
+                    },
+                    {
+                        name: "Half-Life 2",
+                        img: "https://placehold.co/400x300/1e293b/f97316?text=Half-Life+2",
+                        desc: "Pionero en el uso de físicas reales para la resolución de puzzles y el combate."
+                    }
+                ]
+            },
+            2011: {
+                title: "Bloques y Dragones",
+                desc: "Un pequeño proyecto indie llamado Minecraft se lanza oficialmente, permitiendo a los jugadores construir cualquier cosa que imaginen. Ese mismo año, Skyrim redefining los RPGs de mundo abierto.",
+                games: [
+                    {
+                        name: "Minecraft",
+                        img: "https://placehold.co/400x300/1e293b/22c55e?text=Minecraft",
+                        desc: "El videojuego más vendido de la historia; una plataforma infinita de creatividad."
+                    },
+                    {
+                        name: "The Elder Scrolls V: Skyrim",
+                        img: "https://placehold.co/400x300/1e293b/94a3b8?text=Skyrim",
+                        desc: "Un inmenso mundo abierto de fantasía que aún hoy sigue jugándose intensamente."
+                    }
+                ]
+            },
+            2017: {
+                title: "Movilidad Híbrida y Mundos Sin Límites",
+                desc: "Nintendo lanza la Switch, una consola híbrida que rompe las barreras entre portátil y sobremesa, acompañada de un juego que redefinió el concepto de explorar mundos abiertos.",
+                games: [
+                    {
+                        name: "The Legend of Zelda: Breath of the Wild",
+                        img: "https://placehold.co/400x300/1e293b/38bdf8?text=Zelda+BOTW",
+                        desc: "Ofreció una libertad absoluta basada en mecánicas físicas sistémicas."
+                    },
+                    {
+                        name: "PUBG",
+                        img: "https://placehold.co/400x300/1e293b/64748b?text=PUBG",
+                        desc: "Popularizó el masivo género Battle Royale, sentando las bases para Fortnite."
+                    }
+                ]
+            },
+            2020: {
+                title: "Nueva Generación en Pandemia",
+                desc: "Mientras el mundo se quedaba en casa, los videojuegos fueron un refugio social clave. Lanzamiento de las consolas de 9na generación: PlayStation 5 y Xbox Series X/S, enfocadas en almacenamiento ultra-rápido (SSD) y Ray Tracing.",
+                games: [
+                    {
+                        name: "Animal Crossing: New Horizons",
+                        img: "https://placehold.co/400x300/1e293b/10b981?text=Animal+Crossing",
+                        desc: "El fenómeno social de la pandemia, permitiendo a la gente socializar virtualmente."
+                    },
+                    {
+                        name: "Cyberpunk 2077",
+                        img: "https://placehold.co/400x300/1e293b/eab308?text=Cyberpunk+2077",
+                        desc: "Uno de los lanzamientos más esperados y polémicos, empujando los límites técnicos de PC."
+                    }
+                ]
+            },
+            2023: {
+                title: "El Año de los Grandes RPGs",
+                desc: "Un año colosal lleno de secuelas muy esperadas y RPGs profundos de gran escala que rompieron récords de horas jugadas y complejidad de interacciones de los jugadores.",
+                games: [
+                    {
+                        name: "Baldur's Gate 3",
+                        img: "https://placehold.co/400x300/1e293b/c026d3?text=Baldur's+Gate+3",
+                        desc: "Ganador del GOTY. Demostró que un juego RPG por turnos ultra detallado puede ser un éxito mainstream masivo."
+                    },
+                    {
+                        name: "The Legend of Zelda: Tears of the Kingdom",
+                        img: "https://placehold.co/400x300/1e293b/14b8a6?text=Zelda+TOTK",
+                        desc: "Llevó las mecánicas de construcción y físicas a un nivel inaudito en los videojuegos."
+                    }
+                ]
+            },
+            2026: {
+                title: "El Presente y Futuro: IA y Computación Espacial",
+                desc: "Los videojuegos han integrado profundamente modelos de Inteligencia Artificial para PNJ (personajes no jugables) que pueden hablar e improvisar. Además, la computación espacial y la realidad mixta desdibujan la línea entre el mundo virtual y el real.",
+                games: [
+                    {
+                        name: "Juegos Impulsados por IA",
+                        img: "https://placehold.co/400x300/1e293b/00f3ff?text=AI+Gaming+2026",
+                        desc: "Los mundos virtuales ahora reaccionan dinámicamente, creando historias únicas y personalizadas mediante IA en la nube."
+                    }
+                ]
+            }
+        };
+
+        const START_YEAR = 1952;
+        const END_YEAR = 2026;
+        let currentYear = START_YEAR;
+
+        // Función para obtener información del año, autogenera contenido si no es un año clave
+        function getYearInfo(year) {
+            if (historyData[year]) {
+                return historyData[year];
+            }
+            
+            // Generador de datos genéricos para años sin eventos "clave" documentados
+            return {
+                title: `Avance Tecnológico en ${year}`,
+                desc: `Durante ${year}, la industria de los videojuegos continuó su incesante avance. Cada año supuso mejoras en la arquitectura computacional, procesadores de gráficos más rápidos y motores de físicas más sofisticados, pavimentando el camino para la siguiente gran revolución interactiva.`,
+                games: [
+                    {
+                        name: `Catálogo de ${year}`,
+                        img: `https://placehold.co/400x300/111827/475569?text=Tecnología+${year}`,
+                        desc: `La evolución de géneros y hardware mantuvo a los jugadores explorando nuevas fronteras digitales.`
+                    }
+                ]
+            };
+        }
+
+        const timelineContainer = document.getElementById('timeline-container');
+        const mainContent = document.getElementById('main-content');
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+
+        // Generar la línea de tiempo vertical
+        function buildTimeline() {
+            for (let y = START_YEAR; y <= END_YEAR; y++) {
+                const li = document.createElement('li');
+                li.className = `timeline-item font-gamer cursor-pointer p-3 md:p-4 text-center md:text-left text-sm md:text-base text-gray-400 hover:text-white transition-all border-l-4 border-transparent`;
+                li.dataset.year = y;
+                li.innerText = y;
+                
+                // Resaltar años clave en la barra
+                if (historyData[y]) {
+                    li.innerHTML = `${y} <i class="fa-solid fa-star text-neon-pink text-xs ml-1 hidden md:inline-block"></i>`;
+                }
+
+                li.addEventListener('click', () => {
+                    selectYear(y);
+                });
+                
+                timelineContainer.appendChild(li);
+            }
+        }
+
+        // Seleccionar un año, actualizar UI y mostrar info
+        function selectYear(year) {
+            // Validar límites
+            if (year < START_YEAR || year > END_YEAR) {
+                alert(`Por favor, ingresa un año entre ${START_YEAR} y ${END_YEAR}`);
+                return;
+            }
+
+            currentYear = year;
+            
+            // Actualizar estado activo en la barra lateral
+            document.querySelectorAll('.timeline-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            const activeItem = document.querySelector(`.timeline-item[data-year="${year}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+                // Auto-scroll al item en la barra (smooth)
+                activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // Renderizar contenido principal
+            renderMainContent(year);
+            
+            // Sincronizar input del buscador
+            searchInput.value = year;
+        }
+
+        // Mostrar la información en el panel derecho
+        function renderMainContent(year) {
+            const data = getYearInfo(year);
+            
+            // Construir HTML de los juegos
+            let gamesHTML = '';
+            data.games.forEach(game => {
+                gamesHTML += `
+                    <div class="bg-dark-panel p-4 rounded-xl border border-gray-700 hover:border-neon-blue transition-colors group">
+                        <div class="overflow-hidden rounded-lg mb-4">
+                            <img src="${game.img}" alt="${game.name}" class="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <h4 class="font-gamer text-lg text-neon-pink mb-2">${game.name}</h4>
+                        <p class="text-gray-400 text-sm md:text-base leading-relaxed">${game.desc}</p>
+                    </div>
+                `;
+            });
+
+            // HTML completo del panel principal con animación
+            mainContent.innerHTML = `
+                <div class="max-w-4xl mx-auto animate-fade-in">
+                    <div class="mb-10 text-center md:text-left">
+                        <span class="text-neon-blue font-gamer text-5xl md:text-7xl font-black block mb-2 glow-text">${year}</span>
+                        <h2 class="text-2xl md:text-4xl font-gamer text-white mb-6 uppercase">${data.title}</h2>
+                        <div class="w-20 h-1 bg-neon-pink mb-6 mx-auto md:mx-0"></div>
+                        <p class="text-gray-300 text-lg md:text-xl leading-relaxed bg-gray-900/50 p-6 rounded-xl border border-gray-800 shadow-lg">
+                            ${data.desc}
+                        </p>
+                    </div>
+                    
+                    <h3 class="font-gamer text-xl text-gray-200 mb-6 border-b border-gray-700 pb-2"><i class="fa-solid fa-gamepad mr-2 text-neon-blue"></i> Destacados del Año</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${gamesHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Manejar el formulario de búsqueda
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const yearToSearch = parseInt(searchInput.value);
+            selectYear(yearToSearch);
+        });
+
+        // Inicializar la aplicación al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            buildTimeline();
+            // Retraso ligero para simular "carga de sistema" y efecto visual
+            setTimeout(() => {
+                selectYear(START_YEAR);
+            }, 600);
+        });
+
+    </script>
+</body>
+</html>
